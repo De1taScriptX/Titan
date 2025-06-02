@@ -1,55 +1,41 @@
--- Carrega OrionLib
-local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/UltraStuff/scripts2/main/orionlib.lua"))()
+-- Titan AutoKill Script (Delta Safe)
+-- Cria GUI com OrionLib, implementa proteção contra kick e um sistema de Auto Kill
 
--- Cria janela
+-- Carrega a biblioteca OrionLib
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
+
+-- Cria a janela principal da interface
 local Window = OrionLib:MakeWindow({
-Name = "AutoKill | Delta Safe",
-HidePremium = false,
-SaveConfig = false
+    Name = "AutoKill | Delta Safe", 
+    HidePremium = false, 
+    SaveConfig = true, 
+    ConfigFolder = "OrionTest"
 })
 
--- Aba principal
-local MainTab = Window:MakeTab({
-Name = "Principal",
-Icon = "",
-PremiumOnly = false
+-- Cria a aba principal da GUI
+local Tab = Window:MakeTab({
+	Name = "Principal",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
 })
 
--- Ativador do Auto Kill
-local AutoKillAtivo = false
+-- Proteção contra Kick
+hookfunction(game:GetService("Players").LocalPlayer.Kick, function() end)
 
--- Proteção contra Kick (Delta Safe)
-pcall(function()
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
--- Anula função de kick
-LocalPlayer.Kick = function() end
-end)
-
--- Auto Kill com movimento suave
-MainTab:AddToggle({
-Name = "Auto Kill (Delta)",
-Default = false,
-Callback = function(Value)
-AutoKillAtivo = Value
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-    task.spawn(function()
-        while AutoKillAtivo do
-            task.wait(0.3) -- atraso para não parecer bot
-            for _, player in pairs(Players:GetPlayers()) do
-                if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                        local targetPos = player.Character.HumanoidRootPart.Position
-                        local currentPos = LocalPlayer.Character.HumanoidRootPart.Position
-                        local newPos = currentPos:Lerp(targetPos + Vector3.new(0, 0, 2), 0.4)
-                        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(newPos)
+-- Função de Auto Kill
+Tab:AddToggle({
+	Name = "Auto Kill (Delta)",
+	Default = false,
+	Callback = function(Value)
+        getgenv().ak = Value
+        while getgenv().ak and wait(0.2) do
+            pcall(function()
+                for i,v in pairs(game.Players:GetPlayers()) do
+                    if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                        game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = v.Character.HumanoidRootPart.CFrame * CFrame.new(0,0,1)
                     end
                 end
-            end
+            end)
         end
-    end)
-end
+	end    
 })
